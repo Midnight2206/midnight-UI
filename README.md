@@ -21,10 +21,11 @@
 You can import it as a module:
 
 ```js
-import { InfiniteSlider } from './infinite-slider.js';
+import { InfiniteSlider } from 'https://cdn.jsdelivr.net/gh/Midnight2206/midnight-UI@master/index.js'
 ```
 Or include it via script tag:
 ```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Midnight2206/midnight-UI@master/src/InfiniteSlider/slide.css" />
 <div id="my-slider">
   <div class="midnight-slide-track">
     <div class="midnight-slide-card">Slide 1</div>
