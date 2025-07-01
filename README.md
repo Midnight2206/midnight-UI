@@ -25,15 +25,11 @@ import { InfiniteSlider } from './infinite-slider.js';
 Or include it via script tag:
 
 html
-Copy
-Edit
 <script src="path/to/infinite-slider.js"></script>
 📦 Usage
 HTML structure example:
 
 html
-Copy
-Edit
 <div id="my-slider">
   <div class="midnight-slide-track">
     <div class="midnight-slide-card">Slide 1</div>
