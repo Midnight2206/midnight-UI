@@ -81,11 +81,12 @@
   gap: 8px;
   justify-content: center;
   align-items: center;
-  pointer-events: none;
   z-index: 10;
   position: absolute;
 }
-
+.midnight-progress-bar.none {
+  display: none;
+}
 /* Dots */
 .midnight-progress-bar-item {
   flex: 1;
@@ -102,7 +103,7 @@
 /* Layout ngang */
 .midnight-progress-bar.horizontal {
   height: var(--progress-bar);
-  margin: 0 16px;
+  padding: 0 16px;
 }
 .midnight-progress-bar.horizontal .midnight-progress-bar-item {
   height: 100%
@@ -125,7 +126,7 @@
 .midnight-progress-bar.vertical {
   height: 100%;
   width: var(--progress-bar);
-  margin: 16px 0;
+  padding: 16px 0;
 }
 .midnight-progress-bar.vertical .midnight-progress-bar-item {
   width: 100%
@@ -188,7 +189,7 @@
 -------------------------------- */
 .midnight-layout-horizontal {
   display: flex;
-  flex-direction: row;
+  flex-direction: row-reverse;
 }
 
 /* -------------------------------
@@ -196,5 +197,5 @@
 -------------------------------- */
 .midnight-layout-vertical {
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
 }

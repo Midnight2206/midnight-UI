@@ -14,11 +14,17 @@ export class InfiniteSlider {
   #prevBtn = null;
   #nextBtn = null;
   #handlers;
+  #autoPlayID = null;
+  #autoPlayEnabled;
+  #autoPlayDelay;
+  #isDestroyed = false;
   #progressBarItem;
+  #progressBarDisplay
   #progressBar;
-  #progressBarClass;
   #progressBarPosition;
   #axis;
+  #onInit;
+  #onChangeSlide;
   #layoutClasses = ["midnight-layout-horizontal", "midnight-layout-vertical"];
 
   constructor({
@@ -26,13 +32,17 @@ export class InfiniteSlider {
     slideItems,
     onProgress,
     progressBarItem,
-    progressBarClass,
+    progressBarDisplay = 1,
+    autoPlay = false,
+    autoPlayDelay = 3000,
     progressBarPosition = "start",
     layout = 0,
     prevBtn = null,
     nextBtn = null,
     duration = 0.3,
     thresholdRatio = 0,
+    onInit,
+    onChangeSlide,
   }) {
     this.#container =
       typeof container === "string"
@@ -49,21 +59,23 @@ export class InfiniteSlider {
     this.#prevBtn = prevBtn;
     this.#nextBtn = nextBtn;
     this.#progressBarItem = progressBarItem;
-    this.#progressBarClass = progressBarClass;
     this.#progressBarPosition = progressBarPosition;
+    this.#progressBarDisplay = progressBarDisplay
     this.onProgress = onProgress;
     this.#handlers = {
       touchStart: this.#touchStart.bind(this),
       touchMove: this.#touchMove.bind(this),
       touchEnd: this.#touchEnd.bind(this),
-      prevClick: this.#handlePrevBtn.bind(this),
-      nextStart: this.#handleNextBtnStart.bind(this),
-      nextEnd: this.#handleNextBtnEnd.bind(this),
+      touchProgressBar: this.#touchProgressBar.bind(this),
     };
     this.#duration = duration;
     this.#thresholdRatio = thresholdRatio;
+    this.#autoPlayEnabled = autoPlay;
+    this.#autoPlayDelay = autoPlayDelay;
     this.index = 0;
     this.#layout = layout;
+    this.#onInit = onInit;
+    this.#onChangeSlide = onChangeSlide;
     this.#init();
     this.#axis = this.#layout === 0 ? "X" : "Y";
   }
@@ -73,12 +85,10 @@ export class InfiniteSlider {
     this.#nextBtn = this.#createControlSlideButtons(this.#nextBtn, "next");
     this.#progressBar = this.#createProgressBar(
       this.#progressBarItem,
-      this.#progressBarClass,
       this.#progressBarPosition
     );
     this.#prevBtn.classList.add("midnight-prev-btn");
     this.#nextBtn.classList.add("midnight-next-btn");
-    // Reset container
     this.#container.innerHTML = "";
     this.#track = document.createElement("div");
     this.#track.classList.add(
@@ -92,14 +102,34 @@ export class InfiniteSlider {
     this.#container.appendChild(this.#nextBtn);
     this.#container.appendChild(this.#progressBar);
     this.#activeProgressBarItem(0);
+    if(!this.#progressBarDisplay) {
+      this.#progressBar.classList.add('none')
+    }
     this.#render();
     this.#attachEvents();
-    this.#slideWidth =
-      this.#container.querySelector(".midnight-slide-card")?.offsetWidth || 0;
-    this.#slideHeight =
-      this.#container.querySelector(".midnight-slide-card")?.offsetHeight || 0;
-    this.#stepDistance =
-      this.#layout === 0 ? this.#slideWidth : this.#slideHeight;
+    if (this.#autoPlayEnabled) {
+      this.#startAutoPlay();
+    }
+    this.#handleResize();
+    window.addEventListener("resize", this.#handleResize);
+    if (typeof this.#onInit === "function") {
+      this.#onInit(this.getCurrentIndex());
+    }
+  }
+
+  #startAutoPlay() {
+    if (!this.#autoPlayEnabled) return;
+    this.#stopAutoPlay();
+    this.#autoPlayID = setInterval(() => {
+      this.#startChangeSlide();
+      this.#forwardSlide();
+      this.#endChangeSlide();
+    }, this.#autoPlayDelay);
+  }
+
+  #stopAutoPlay() {
+    clearInterval(this.#autoPlayID);
+    this.#autoPlayID = null;
   }
 
   #render() {
@@ -158,7 +188,7 @@ export class InfiniteSlider {
     fallback.classList.add("midnight-control-btn");
     return fallback;
   }
-  #createProgressBar(input, barClass, pos) {
+  #createProgressBar(input, pos) {
     const defaultClassItem = "midnight-progress-bar-item";
     const defaultClassBar = "midnight-progress-bar";
 
@@ -195,7 +225,6 @@ export class InfiniteSlider {
     // Tạo thanh Progress
     const progressBar = document.createElement("div");
     progressBar.classList.add(defaultClassBar);
-    if (barClass) progressBar.classList.add(barClass);
     if (pos === "start")
       progressBar.classList.add("midnight-progress-bar-start");
     if (pos === "end") progressBar.classList.add("midnight-progress-bar-end");
@@ -249,62 +278,82 @@ export class InfiniteSlider {
   }
 
   #attachEvents() {
-    this.#track.addEventListener("mousedown", this.#handlers.touchStart);
-    document.addEventListener("mousemove", this.#handlers.touchMove);
-    document.addEventListener("mouseup", this.#handlers.touchEnd);
-    this.#track.addEventListener("touchstart", this.#handlers.touchStart, {
+    this.#track.addEventListener("pointerdown", this.#handlers.touchStart, {
       passive: true,
     });
-    this.#track.addEventListener("touchmove", this.#handlers.touchMove, {
+    this.#track.addEventListener("pointermove", this.#handlers.touchMove, {
       passive: true,
     });
-    this.#track.addEventListener("touchend", this.#handlers.touchEnd);
+    this.#track.addEventListener("pointerup", this.#handlers.touchEnd);
+    this.#track.addEventListener("pointercancel", this.#handlers.touchEnd);
+    this.#track.addEventListener("mouseleave", this.#handleMouseLeave);
 
-    this.#prevBtn.addEventListener("click", this.#handlers.prevClick);
-    this.#nextBtn.addEventListener("mousedown", this.#handlers.nextStart);
-    this.#nextBtn.addEventListener("mouseup", this.#handlers.nextEnd);
+    this.#prevBtn.addEventListener("pointerdown", this.#handlers.touchStart, {
+      passive: true,
+    });
+    this.#prevBtn.addEventListener("pointerup", this.#handlers.touchEnd);
+
+    this.#nextBtn.addEventListener("pointerdown", this.#handlers.touchStart, {
+      passive: true,
+    });
+    this.#nextBtn.addEventListener("pointerup", this.#handlers.touchEnd);
+
+    this.#progressBar.addEventListener(
+      "click",
+      this.#handlers.touchProgressBar
+    );
   }
 
   #removeEvents() {
-    this.#track.removeEventListener("mousedown", this.#handlers.touchStart);
-    document.removeEventListener("mousemove", this.#handlers.touchMove);
-    document.removeEventListener("mouseup", this.#handlers.touchEnd);
-    this.#track.removeEventListener("touchstart", this.#handlers.touchStart);
-    this.#track.removeEventListener("touchmove", this.#handlers.touchMove);
-    this.#track.removeEventListener("touchend", this.#handlers.touchEnd);
+    this.#track.removeEventListener("pointerdown", this.#handlers.touchStart);
+    this.#track.removeEventListener("pointermove", this.#handlers.touchMove);
+    this.#track.removeEventListener("pointerup", this.#handlers.touchEnd);
+    this.#track.removeEventListener("pointercancel", this.#handlers.touchEnd);
+    this.#track.removeEventListener("mouseleave", this.#handleMouseLeave);
 
-    this.#prevBtn.removeEventListener("click", this.#handlers.prevClick);
-    this.#nextBtn.removeEventListener("mousedown", this.#handlers.nextStart);
-    this.#nextBtn.removeEventListener("mouseup", this.#handlers.nextEnd);
+    this.#prevBtn.removeEventListener("pointerdown", this.#handlers.touchStart);
+    this.#prevBtn.removeEventListener("pointerup", this.#handlers.touchEnd);
+
+    this.#nextBtn.removeEventListener("pointerdown", this.#handlers.touchStart);
+    this.#nextBtn.removeEventListener("pointerup", this.#handlers.touchEnd);
+
+    this.#progressBar.removeEventListener(
+      "click",
+      this.#handlers.touchProgressBar
+    );
   }
 
   #getPosX(e) {
-    return e.type.includes("mouse") ? e.clientX : e.touches[0].clientX;
+    return e.clientX;
   }
   #getPosY(e) {
-    return e.type.includes("mouse") ? e.clientY : e.touches[0].clientY;
+    return e.clientY;
   }
+  #touchProgressBar(e) {
+    console.log(e);
 
+    const items = Array.from(this.#progressBar.children);
+    const clickedIndex = items.indexOf(e.target);
+    if (clickedIndex === -1 || clickedIndex === this.getCurrentIndex()) return;
+    this.goTo(clickedIndex);
+  }
+  #startChangeSlide() {
+    this.#stopAutoPlay();
+    this.#track.style.transition = "none";
+    this.#track.style.transform = "";
+    const lastChildClone =
+      this.#track.children[this.#track.children.length - 1].cloneNode(true);
+    this.#track.prepend(lastChildClone);
+    this.#track.style.transform = `translate${this.#axis}(${
+      this.#stepDistance
+    }px)`;
+  }
   #touchStart(e) {
-    console.log(this.#startX, this.#startY);
-
-    if (e.type === "mousedown") {
-      this.#startX = e.clientX;
-      this.#startY = e.clientY;
-    } else if (e.type === "touchstart") {
-      this.#startX = e.touches[0].clientX;
-      this.#startY = e.touches[0].clientY;
-    }
+    this.#startX = e.clientX;
+    this.#startY = e.clientY;
     if (this.#startX && this.#startY) {
       this.#isDragging = true;
-      this.#track.style.transition = "none";
-      // Reset mọi transform trước khi áp dụng
-      this.#track.style.transform = "";
-      const lastChildClone =
-        this.#track.children[this.#track.children.length - 1].cloneNode(true);
-      this.#track.prepend(lastChildClone);
-      this.#track.style.transform = `translate${this.#axis}(${-this
-        .#stepDistance}px)`;
+      this.#startChangeSlide();
     }
   }
   #touchMove(e) {
@@ -314,22 +363,43 @@ export class InfiniteSlider {
       : this.#getPosX(e) - this.#startX;
 
     this.#track.style.transform = `translate${this.#axis}(${
-      detal - this.#stepDistance
+      detal + this.#stepDistance
     }px)`;
   }
+  #handleMouseLeave = (e) => {
+    if (!this.#isDragging) return;
+    this.#handlers.touchEnd(e);
+  };
   #backSlide() {
-    this.#track.style.transform = `translate${this.#axis}(${
-      this.#stepDistance * -2
-    }px)`;
-    const first = this.#slideItems.shift();
-    this.#slideItems.push(first);
-  }
-  #forwardSlide() {
     this.#track.style.transform = `translate${this.#axis}(${
       this.#stepDistance * 0
     }px)`;
     const last = this.#slideItems.pop();
     this.#slideItems.unshift(last);
+  }
+  #forwardSlide() {
+    this.#track.style.transform = `translate${this.#axis}(${
+      this.#stepDistance * 2
+    }px)`;
+    const first = this.#slideItems.shift();
+    this.#slideItems.push(first);
+  }
+  #endChangeSlide() {
+    this.#track.style.transition = `transform ${this.#duration}s ease`;
+    this.#activeProgressBarItem(this.#slideItems[0].index);
+    this.#removeEvents();
+    const handleTransitionEnd = () => {
+      this.#render();
+      this.#track.removeEventListener("transitionend", handleTransitionEnd);
+      this.#attachEvents();
+    };
+    this.#track.addEventListener("transitionend", handleTransitionEnd);
+    if (this.#autoPlayEnabled) {
+      this.#startAutoPlay();
+    }
+    if (typeof this.#onChangeSlide === "function") {
+      this.#onChangeSlide(this.getCurrentIndex);
+    }
   }
   #touchEnd(e) {
     if (!this.#isDragging) return;
@@ -338,7 +408,6 @@ export class InfiniteSlider {
 
     this.#isDragging = false;
     const detal = this.#layout ? endY - this.#startY : endX - this.#startX;
-    this.#track.style.transition = `transform ${this.#duration}s ease`;
     if (endX === this.#startX && endY === this.#startY) {
       const rectContainer = this.#container.getBoundingClientRect();
       let action;
@@ -358,70 +427,101 @@ export class InfiniteSlider {
       if (isChangeSlide) {
         detal < 0 ? this.#backSlide() : this.#forwardSlide();
       } else {
-        this.#track.style.transform = `translate${this.#axis}(${-this
-          .#stepDistance}px)`;
+        this.#track.style.transform = `translate${this.#axis}(${
+          this.#stepDistance
+        }px)`;
       }
     }
-
-    this.#activeProgressBarItem(this.#slideItems[0].index);
-    this.#removeEvents();
-    const handleTransitionEnd = () => {
-      this.#render();
-      this.#track.removeEventListener("transitionend", handleTransitionEnd);
-      this.#attachEvents();
-    };
-    this.#track.addEventListener("transitionend", handleTransitionEnd);
-  }
-  #handlePrevBtn() {
-    this.#track.style.transition = null;
-    // Reset mọi transform trước khi áp dụng
-    this.#track.style.transform = "";
-    this.#track.style.transition = `transform ${this.#duration}s ease`;
-    if (this.#layout) {
-      this.#track.style.transform = `translate${this.#axis}(${
-        this.#stepDistance * -1
-      }px)`;
-    } else {
-      this.#track.style.transform = `translate${this.#axis}(${
-        this.#stepDistance * 1
-      }px)`;
-    }
-    const first = this.#slideItems.shift();
-    this.#slideItems.push(first);
-    this.#activeProgressBarItem(this.#slideItems[0].index);
-    this.#removeEvents();
-    const handleTransitionEnd = () => {
-      this.#render();
-      this.#track.removeEventListener("transitionend", handleTransitionEnd);
-      this.#attachEvents();
-    };
-    this.#track.addEventListener("transitionend", handleTransitionEnd);
-  }
-  #handleNextBtnStart() {
-    this.#track.style.transition = null;
-    this.#track.style.transform = "";
-    const lastChildClone =
-      this.#track.children[this.#track.children.length - 1].cloneNode(true);
-    this.#track.prepend(lastChildClone);
-    this.#track.style.transform = `translate${this.#axis}(${-this
-      .#stepDistance}px)`;
-  }
-  #handleNextBtnEnd() {
-    this.#removeEvents();
-    this.#track.style.transition = `transform ${this.#duration}s ease`;
-    this.#forwardSlide();
-    this.#activeProgressBarItem(this.#slideItems[0].index);
-    const handleTransitionEnd = () => {
-      this.#render();
-      this.#track.removeEventListener("transitionend", handleTransitionEnd);
-      this.#attachEvents();
-    };
-    this.#track.addEventListener("transitionend", handleTransitionEnd);
+    this.#endChangeSlide();
   }
   #activeProgressBarItem(index) {
     Array.from(this.#progressBar.children).forEach((item) => {
       item.classList.remove("active");
     });
     this.#progressBar.children[index]?.classList.add("active");
+  }
+  #handleResize = () => {
+    this.#slideWidth =
+      this.#container.querySelector(".midnight-slide-card")?.offsetWidth || 0;
+    this.#slideHeight =
+      this.#container.querySelector(".midnight-slide-card")?.offsetHeight || 0;
+    this.#stepDistance =
+      this.#layout === 0 ? this.#slideWidth : this.#slideHeight;
+  };
+
+  //Public method
+  destroy() {
+    if (this.#isDestroyed) return;
+
+    this.#removeEvents();
+    window.removeEventListener("resize", this.#handleResize);
+    this.#isDestroyed = true;
+    if (this.#container && this.#container instanceof HTMLElement) {
+      this.#container.classList.remove("midnight-slide-container");
+      this.#layoutClasses.forEach((cls) => this.#track?.classList.remove(cls));
+      this.#container.innerHTML = "";
+    }
+    this.#track = null;
+    this.#container = null;
+    this.#slideItems = null;
+    this.#prevBtn = null;
+    this.#nextBtn = null;
+    this.#progressBar = null;
+    this.#progressBarItem = null;
+    this.#handlers = null;
+  }
+  getContainer() {
+    return this.#container;
+  }
+  getTrack() {
+    return this.#track;
+  }
+  getPrevButton() {
+    return this.#prevBtn;
+  }
+  getNextButton() {
+    return this.#nextBtn;
+  }
+  getProgressBar() {
+    return this.#progressBar;
+  }
+  next() {
+    if (this.#isDestroyed) return;
+    this.#startChangeSlide()
+    this.#forwardSlide()
+    this.#endChangeSlide()
+  }
+  prev() {
+    if (this.#isDestroyed) return;
+    this.#startChangeSlide();
+    this.#backSlide();
+    this.#endChangeSlide();
+  }
+  getSlideItems() {
+    return this.#slideItems.map((s) => s.item);
+  }
+  updateSlideItems(newItems) {
+    this.#slideItems = this.#handleSlideItems(newItems);
+    this.#render();
+    this.#activeProgressBarItem(0);
+  }
+  getCurrentIndex() {
+    return this.#slideItems[0]?.index ?? 0;
+  }
+  goTo(index) {
+    const currentIndex = this.#slideItems[0].index;
+    let steps = index - currentIndex;
+    if (steps === 0) return;
+
+    while (steps > 0) {
+      this.#forwardSlide();
+      steps--;
+    }
+    while (steps < 0) {
+      this.#backSlide();
+      steps++;
+    }
+    this.#render();
+    this.#activeProgressBarItem(index);
   }
 }
