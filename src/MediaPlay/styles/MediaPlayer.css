@@ -1,0 +1,91 @@
+/* Container chính */
+media-player {
+  display: flex;
+  flex-direction: column;
+  min-width: 600px;
+  width: 100%;
+  height: 100%;
+  padding: 2rem auto;
+  background: #121212;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  color: #fff;
+  font-family: "Segoe UI", sans-serif;
+  position: relative;
+}
+media-player > div[data-media-cover] {
+  position: relative;
+  width: 100%;
+  flex: 1;
+}
+/* Video/audio media */
+media-player video,
+media-player audio {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: #000;
+  outline: none;
+}
+
+/* Nút play/pause */
+toggle-play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: #1db954;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  user-select: none;
+  margin: 1rem auto;
+  position: relative;
+  z-index: 10;
+}
+
+/* Hover/focus */
+toggle-play :hover {
+  background: #1ed760;
+}
+toggle-play :focus {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Hiển thị icon phù hợp */
+toggle-play [slot="play"],
+toggle-play [slot="pause"] {
+  display: none;
+}
+toggle-play [data-state="paused"] [slot="play"] {
+  display: inline;
+}
+toggle-play [data-state="playing"] [slot="pause"] {
+  display: inline;
+}
+/* media-seek */
+media-seek {
+  width: 100%;
+}
+media-seek input[type="range"] {
+  width: 100%;
+  height: 4px;
+  cursor: pointer;
+  background: #535353;
+  outline: none;
+}
+
+/* Responsive nhỏ hơn 480px */
+@media (max-width: 480px) {
+  toggle-play  {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+}

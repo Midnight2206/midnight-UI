@@ -1,0 +1,201 @@
+:root {
+  --progress-bar: 6px
+}
+* {
+  box-sizing: border-box;
+}
+/* -------------------------------
+   Base container
+-------------------------------- */
+.midnight-slide-container {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  height: 200px;
+  margin: auto;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Track base */
+.midnight-slide-track {
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+/* === Nút điều hướng - dùng chung === */
+.midnight-control-btn {
+  position: absolute;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: auto;
+  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  will-change: transform;
+}
+.midnight-control-btn:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+/* === Layout ngang: nút trái phải === */
+.midnight-layout-horizontal ~ .midnight-prev-btn {
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.midnight-layout-horizontal ~ .midnight-next-btn {
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* === Layout dọc: nút trên dưới === */
+.midnight-layout-vertical ~ .midnight-prev-btn {
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.midnight-layout-vertical ~ .midnight-next-btn {
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Gốc thanh progress */
+.midnight-progress-bar {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  position: absolute;
+}
+.midnight-progress-bar.none {
+  display: none;
+}
+/* Dots */
+.midnight-progress-bar-item {
+  flex: 1;
+  border-radius: 4px;
+  background-color: #000;
+  opacity: 0.5;
+}
+
+.midnight-progress-bar-item.active {
+  background-color: #007bff;
+  opacity: 1;
+}
+
+/* Layout ngang */
+.midnight-progress-bar.horizontal {
+  height: var(--progress-bar);
+  padding: 0 16px;
+}
+.midnight-progress-bar.horizontal .midnight-progress-bar-item {
+  height: 100%
+}
+.midnight-progress-bar-start.horizontal {
+  flex-direction: row;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.midnight-progress-bar-end.horizontal {
+  flex-direction: row;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Layout dọc */
+.midnight-progress-bar.vertical {
+  height: 100%;
+  width: var(--progress-bar);
+  padding: 16px 0;
+}
+.midnight-progress-bar.vertical .midnight-progress-bar-item {
+  width: 100%
+}
+.midnight-progress-bar-start.vertical {
+  flex-direction: column;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.midnight-progress-bar-end.vertical {
+  flex-direction: column;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+
+/* -------------------------------
+   Card + Item
+-------------------------------- */
+.midnight-slide-card {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 1rem;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.midnight-slide-item {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.midnight-slide-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 10px;
+  user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  pointer-events: none;
+}
+
+/* -------------------------------
+   Horizontal layout
+-------------------------------- */
+.midnight-layout-horizontal {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+/* -------------------------------
+   Vertical layout
+-------------------------------- */
+.midnight-layout-vertical {
+  display: flex;
+  flex-direction: column-reverse;
+}

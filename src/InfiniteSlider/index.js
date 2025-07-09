@@ -1,0 +1,1 @@
+export {default as InfiniteSlider} from './src/InfiniteSlider/slide.js'

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="./src/MediaPlay/main.js"></script>
+    <link rel="stylesheet" href="./src/MediaPlay/styles/MediaPlayer.css" />
+  </head>
+  <body>
+    <div class="media-play-app">
+      <header class="header"></header>
+      <div class="body">
+        <aside class="left-sidebar"></aside>
+        <main class="container">
+          <div class="media-cover">
+            <media-player class="media-player">
+              <media-toggle> </media-toggle>
+              <media-switch data-switch-type="next">Next</media-switch>
+              <media-switch data-switch-type = 'prev'>Previous</media-switch>
+              <media-seek></media-seek>
+              <media-volume>
+                <span slot="mute">🔇</span>
+                <span slot="unmute">🔊</span>
+              </media-volume>
+              <media-random></media-random>
+              <media-repeat></media-repeat>
+            </media-player>
+          </div>
+          <aside class="right-sidebar"></aside>
+        </main>
+      </div>
+    </div>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

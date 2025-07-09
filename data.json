@@ -1,0 +1,122 @@
+[
+  {
+    "title": "Midnight Groove",
+    "src": "https://www.youtube.com/watch?v=abc123xyz",
+    "type": "video",
+    "author": "Synthwave Artist",
+    "likes": 15200,
+    "dislikes": 340,
+    "views": 1240000,
+    "image": "https://img.youtube.com/vi/abc123xyz/maxresdefault.jpg",
+    "lyric": "In the neon glow, we ride...",
+    "description": "A smooth synthwave track to cruise through the night."
+  },
+  {
+    "title": "Sunrise Melody",
+    "src": "https://www.youtube.com/watch?v=def456uvw",
+    "type": "video",
+    "author": "Acoustic Duo",
+    "likes": 9800,
+    "dislikes": 120,
+    "views": 560000,
+    "image": "https://img.youtube.com/vi/def456uvw/maxresdefault.jpg",
+    "lyric": "Golden rays paint the sky...",
+    "description": "Soft acoustic ballad to start your day."
+  },
+  {
+    "title": "Deep Bass Drop",
+    "src": "https://www.youtube.com/watch?v=ghi789rst",
+    "type": "video",
+    "author": "DJ Nightfall",
+    "likes": 23000,
+    "dislikes": 800,
+    "views": 2200000,
+    "image": "https://img.youtube.com/vi/ghi789rst/maxresdefault.jpg",
+    "lyric": "",
+    "description": "High energy EDM track with a heavy drop."
+  },
+  {
+    "title": "Chill Vibes",
+    "src": "https://www.youtube.com/watch?v=jkl012mno",
+    "type": "video",
+    "author": "Lofi Beats",
+    "likes": 152000,
+    "dislikes": 1500,
+    "views": 34000000,
+    "image": "https://img.youtube.com/vi/jkl012mno/maxresdefault.jpg",
+    "lyric": "",
+    "description": "Lofi hip-hop beat perfect for studying or relaxing."
+  },
+  {
+    "title": "Morning Coffee",
+    "src": "https://www.youtube.com/watch?v=pqr345stu",
+    "type": "audio",
+    "author": "Jazz Trio",
+    "likes": 5400,
+    "dislikes": 60,
+    "views": 210000,
+    "image": "https://img.youtube.com/vi/pqr345stu/maxresdefault.jpg",
+    "lyric": "",
+    "description": "Smooth jazz instrumental to accompany your morning."
+  },
+  {
+    "title": "Rock Anthem",
+    "src": "https://www.youtube.com/watch?v=vwx678yzA",
+    "type": "video",
+    "author": "The Rockers",
+    "likes": 89000,
+    "dislikes": 2100,
+    "views": 12500000,
+    "image": "https://img.youtube.com/vi/vwx678yzA/maxresdefault.jpg",
+    "lyric": "Feel the fire burning in your soul...",
+    "description": "High-energy rock anthem with soaring guitar riffs."
+  },
+  {
+    "title": "Classic Ballad",
+    "src": "https://www.youtube.com/watch?v=bcd901efG",
+    "type": "audio",
+    "author": "Solo Pianist",
+    "likes": 6700,
+    "dislikes": 80,
+    "views": 480000,
+    "image": "https://img.youtube.com/vi/bcd901efG/maxresdefault.jpg",
+    "lyric": "",
+    "description": "Emotional piano piece for quiet reflection."
+  },
+  {
+    "title": "Latin Fire",
+    "src": "https://www.youtube.com/watch?v=hij234klM",
+    "type": "video",
+    "author": "Salsa Star",
+    "likes": 32000,
+    "dislikes": 750,
+    "views": 3100000,
+    "image": "https://img.youtube.com/vi/hij234klM/maxresdefault.jpg",
+    "lyric": "",
+    "description": "Upbeat salsa track that'll get you dancing."
+  },
+  {
+    "title": "Ambient Dreams",
+    "src": "https://www.youtube.com/watch?v=nop567qrS",
+    "type": "audio",
+    "author": "Drone Ensemble",
+    "likes": 2900,
+    "dislikes": 45,
+    "views": 150000,
+    "image": "https://img.youtube.com/vi/nop567qrS/maxresdefault.jpg",
+    "lyric": "",
+    "description": "Ambient soundscape for meditation and focus."
+  },
+  {
+    "title": "Pop Hit Single",
+    "src": "https://www.youtube.com/watch?v=stu890vwX",
+    "type": "video",
+    "author": "Pop Star",
+    "likes": 210000,
+    "dislikes": 5300,
+    "views": 50000000,
+    "image": "https://img.youtube.com/vi/stu890vwX/maxresdefault.jpg",
+    "lyric": "Dancing under starlight...",
+    "description": "Catchy pop single with wide appeal."
+  }
+]
